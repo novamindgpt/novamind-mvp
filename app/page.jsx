@@ -6,19 +6,32 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [output, setOutput] = useState('');
   const [loading, setLoading] = useState(false);
-
-  const handleGenerate = async () => {
+ 
+ const handleGenerate = async () => {
     setLoading(true);
-    const res = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ input }),
-    });
-    const data = await res.json();
-    setOutput(data.result);
-    setLoading(false);
+    setOutput('');
+    try {
+      const res = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ input }),
+      });
+
+      const data = await res.json();
+
+      if (data.error) {
+        setOutput(`❌ Error del servidor: ${data.error}`);
+      } else {
+        setOutput(data.result);
+      }
+    } catch (err) {
+      setOutput(`❌ Error al conectar con el backend: ${err.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
+  
   return (
     <main className="p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl font-bold mb-4">NovaMind – Generador de Contenido</h1>
